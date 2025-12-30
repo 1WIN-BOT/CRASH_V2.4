@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Robot de Prédiction Pro - Version Backend</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+    /* Garder tous les styles CSS existants */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .5; }
+    }
+    .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(-25%); }
+        50% { transform: translateY(0); }
+    }
+    .animate-bounce { animation: bounce 1s infinite; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    .coefficient-badge {
+        display: inline-block;
+        background: linear-gradient(145deg, #3B82F6, #1E40AF);
+        color: white;
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        margin: 0.25rem;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .auto-fetch-container {
+        background: linear-gradient(145deg, #f0f4f8, #def1ff);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    .history-item {
+        transition: all 0.3s ease;
+    }
+    
+    .history-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .stats-card {
+        background: linear-gradient(145deg, #ffffff, #f9fafb);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        padding: 1rem;
+    }
+    
+    .robot-header {
+        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        color: white;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-card {
+        background: linear-gradient(145deg, #f0f9ff, #e0f7fa);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border: 1px solid #bae6fd;
+    }
+    
+    .duplicate-warning {
+        background-color: #fffbeb;
+        color: #854d0e;
+        border: 1px solid #fde68a;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        text-align: center;
+        margin-top: 10px;
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #f0f9ff, #e6f7ff);
+        min-height: 100vh;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        padding: 1rem;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .gradient-btn {
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .gradient-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background: #fffbeb;
+        color: #d97706;
+    }
+    
+    .status-success {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-failed {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+    
+    .round-badge {
+        display: inline-block;
+        background: linear-gradient(145deg, #1d4ed8, #3b82f6);
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1.2rem;
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin: 0.3rem;
+        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .prediction-score {
+        display: inline-block;
+        background: linear-gradient(145deg, #8b5cf6, #c084fc);
+        color: white;
+        border-radius: 10px;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    
+    .validation-container {
+        margin-top: 1.2rem;
+        padding: 1rem;
+        background: linear-gradient(145deg, #f0f9ff, #e0f2fe);
+        border-radius: 10px;
+        border: 1px solid #bae6fd;
+    }
+    
+    .validation-status {
+        padding: 0.6rem;
+        border-radius: 6px;
+        margin-top: 0.4rem;
+        font-size: 0.85rem;
+        text-align: center;
+        font-weight: 500;
+    }
+    
+    .validation-pending {
+        background-color: #fffbeb;
+        color: #854d0e;
+        border: 1px solid #fde68a;
+    }
+    
+    .validation-success {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+    
+    .validation-failed {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fca5a5;
+    }
+    
+    @media (max-width: 768px) {
+        .container {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            max-width: 100%;
+        }
+        
+        .robot-header {
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .robot-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .dashboard-card {
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .grid-cols-1 {
+            gap: 0.75rem;
+        }
+        
+        .grid-cols-1.md\:grid-cols-2 {
+            gap: 0.75rem;
+        }
+        
+        .feature-card {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-card {
+            padding: 0.75rem;
+        }
+        
+        .gradient-btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .auto-fetch-container {
+            padding: 12px;
+        }
+        
+        footer {
+            padding: 1rem 0;
+        }
+        
+        footer .grid {
+            gap: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .robot-header h1 {
+            font-size: 1.3rem;
+        }
+        
+        .dashboard-card {
+            padding: 0.5rem;
+        }
+        
+        .gradient-btn {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+        }
+        
+        .feature-card {
+            padding: 0.5rem;
+        }
+    }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- Interface principale -->
+<div class="container mx-auto px-2 py-4">
+    <div class="robot-header text-center">
+        <h1 class="text-3xl font-bold flex items-center justify-center flex-wrap">
+            <i class="fas fa-robot mr-2"></i>
+            🤖 Predicteur Pro 
+            <span class="ml-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">V2.5 (Backend)</span>
+        </h1>
+        <p class="mt-1 text-blue-100 text-sm">Version avec backend sécurisé - Logique protégée</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+        <!-- Colonne principale -->
+        <div class="lg:col-span-2">
+            <div class="dashboard-card">
+                <div class="auto-fetch-container">
+                    <div class="auto-fetch-header flex justify-between items-center">
+                        <div class="auto-fetch-title font-bold text-blue-800 text-sm">
+                            <i class="fas fa-sync-alt mr-2"></i> Récupération Automatique
+                        </div>
+                        <div class="auto-fetch-status text-gray-700 text-sm" id="autoFetchStatus">
+                            <span class="auto-fetch-dot bg-red-500 rounded-full w-2 h-2 inline-block mr-1"></span>
+                            <span>Inactif</span>
+                        </div>
+                    </div>
+                    
+                    <div class="coefficients-display mt-3 bg-white rounded-lg p-3" id="coefficientsDisplay">
+                        <p class="text-center text-gray-500 text-sm">Les coefficients apparaîtront ici</p>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-3 flex-wrap">
+                        <button onclick="startAutoFetch()" class="flex-1 gradient-btn min-w-[120px]">
+                            <i class="fas fa-play mr-2"></i> Démarrer
+                        </button>
+                        <button onclick="stopAutoFetch()" class="flex-1 bg-gradient-to-r from-red-500 to-rose-600 text-white py-2 rounded-lg hover:opacity-90 transition font-semibold text-sm min-w-[120px]">
+                            <i class="fas fa-stop mr-2"></i> Arrêter
+                        </button>
+                        <button onclick="openAdvancedSettings()" class="flex-1 bg-gradient-to-r from-green-500 to-teal-600 text-white py-2 rounded-lg hover:opacity-90 transition font-semibold text-sm min-w-[120px]">
+                            <i class="fas fa-cog mr-2"></i> Options
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="result" class="bg-gray-50 rounded-lg p-4 mt-4 border border-gray-200">
+                    <div class="text-center text-gray-600">
+                        Les prédictions apparaîtront ici automatiquement
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonne de droite -->
+        <div>
+            <div class="stats-card mb-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-3">
+                    <i class="fas fa-chart-pie text-purple-500 mr-2"></i>
+                    Statistiques Globales
+                </h3>
+                <div id="statsContainer" class="text-center">
+                    <p id="totalPredictions" class="text-2xl font-bold text-blue-600">0</p>
+                    <p id="predictionAccuracy" class="text-xl font-bold text-green-600 mt-1">0%</p>
+                    <div class="grid grid-cols-3 gap-3 mt-3">
+                        <div class="bg-green-100 p-2 rounded-lg">
+                            <p class="text-lg font-bold text-green-800">✅</p>
+                            <p class="text-xs text-gray-700">Validées</p>
+                            <p id="successCount" class="font-bold">0</p>
+                        </div>
+                        <div class="bg-red-100 p-2 rounded-lg">
+                            <p class="text-lg font-bold text-red-800">❌</p>
+                            <p class="text-xs text-gray-700">Échouées</p>
+                            <p id="failedCount" class="font-bold">0</p>
+                        </div>
+                        <div class="bg-yellow-100 p-2 rounded-lg">
+                            <p class="text-lg font-bold text-yellow-800">⏳</p>
+                            <p class="text-xs text-gray-700">En attente</p>
+                            <p id="pendingCount" class="font-bold">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card mb-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-brain text-indigo-500 mr-2"></i>
+                        Analyse Intelligence
+                    </h3>
+                    <button onclick="analyzeHistoricalData()" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-2 py-1 rounded-lg text-xs hover:opacity-90 transition">
+                        Actualiser
+                    </button>
+                </div>
+                <div id="intelligentAnalysis" class="text-xs space-y-2">
+                    <div class="animate-pulse text-gray-500">
+                        Cliquez sur Actualiser pour analyser les données
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        <i class="fas fa-history text-blue-500 mr-2"></i>
+                        Historique des Prédictions
+                    </h3>
+                    <button id="toggleHistory" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-2 py-1 rounded-lg text-xs hover:opacity-90 transition" onclick="toggleHistoryVisibility()">
+                        Masquer
+                    </button>
+                </div>
+                <div id="predictionHistory" class="space-y-3 max-h-[400px] overflow-y-auto pr-1 text-sm"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Section Fonctionnalités -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="feature-card">
+            <div class="text-blue-500 text-2xl mb-2">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h4 class="font-bold text-base text-gray-800 mb-1">Backend Sécurisé</h4>
+            <p class="text-gray-600 text-sm">Logique de prédiction protégée côté serveur pour plus de sécurité.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="text-green-500 text-2xl mb-2">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h4 class="font-bold text-base text-gray-800 mb-1">API REST</h4>
+            <p class="text-gray-600 text-sm">Communication via API REST entre le frontend et le backend.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="text-purple-500 text-2xl mb-2">
+                <i class="fas fa-server"></i>
+            </div>
+            <h4 class="font-bold text-base text-gray-800 mb-1">Hébergement Render</h4>
+            <p class="text-gray-600 text-sm">Backend hébergé sur Render avec mise à l'échelle automatique.</p>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-8 mt-8">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+                <h3 class="text-lg font-bold mb-3">Predicteur Pro</h3>
+                <p class="text-gray-300 text-sm">Version backend avec logique de prédiction protégée.</p>
+            </div>
+            
+            <div>
+                <h4 class="font-bold text-base mb-3">Backend API</h4>
+                <ul class="space-y-1 text-gray-300 text-sm">
+                    <li><code class="text-xs">POST /api/predict</code></li>
+                    <li><code class="text-xs">GET /api/coefficients</code></li>
+                    <li><code class="text-xs">POST /api/verify</code></li>
+                    <li><code class="text-xs">GET /api/history</code></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="font-bold text-base mb-3">Support</h4>
+                <ul class="space-y-1 text-gray-300 text-sm">
+                    <li><i class="fas fa-phone mr-2"></i> +225 05 06 21 00 51</li>
+                    <li><i class="fas fa-envelope mr-2"></i> dieudonne230@gmail.com</li>
+                    <li><i class="fab fa-whatsapp mr-2"></i> WhatsApp Support</li>
+                    <li><i class="fab fa-telegram mr-2"></i> Telegram Channel</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-base mb-3">Configuration Backend</h4>
+                <p class="text-gray-300 mb-3 text-sm">URL du backend :</p>
+                <div class="flex">
+                    <input type="text" id="backendUrl" value="https://votre-backend.onrender.com" 
+                           class="px-3 py-1 rounded-l-lg w-full text-sm text-gray-800">
+                    <button onclick="updateBackendUrl()" class="bg-gradient-to-r from-blue-500 to-indigo-600 px-3 py-1 rounded-r-lg">
+                        <i class="fas fa-save"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+         <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+            <p>&copy; 2023 Predicteur Pro. Version Backend.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Variables globales
+    const DEFAULT_BACKEND_URL = 'https://votre-backend.onrender.com';
+    let BACKEND_URL = localStorage.getItem('backendUrl') || DEFAULT_BACKEND_URL;
+    
+    let predictionHistory = [];
+    let isHistoryVisible = true;
+    let autoCoefficients = [];
+    let autoFetchInterval = null;
+    let pendingVerification = [];
+    let isAutoFetchActive = false;
+    
+    // Variables pour le contrôle des doublons
+    let lastCoefficient = null;
+    let lastFetchTime = null;
+    
+    // Initialisation au chargement
+    document.addEventListener('DOMContentLoaded', () => {
+        // Charger l'URL du backend
+        document.getElementById('backendUrl').value = BACKEND_URL;
+        
+        // Charger l'historique depuis le backend
+        loadHistoryFromBackend();
+        
+        // Charger les statistiques
+        loadStatsFromBackend();
+        
+        // Afficher le guide
+        showGuide();
+    });
+
+    // Fonction pour mettre à jour l'URL du backend
+    function updateBackendUrl() {
+        const newUrl = document.getElementById('backendUrl').value.trim();
+        if (newUrl) {
+            BACKEND_URL = newUrl;
+            localStorage.setItem('backendUrl', newUrl);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'URL mise à jour',
+                text: 'L\'URL du backend a été mise à jour',
+                toast: true,
+                position: 'top',
+                timer: 2000
+            });
+        }
+    }
+
+    // Fonction pour démarrer la récupération automatique
+    async function startAutoFetch() {
+        if (autoFetchInterval) return;
+        
+        isAutoFetchActive = true;
+        const statusElement = document.getElementById('autoFetchStatus');
+        statusElement.innerHTML = `
+            <span class="bg-green-500 rounded-full w-2 h-2 inline-block mr-1"></span>
+            <span>Récupération en cours...</span>
+            <span class="fetching-spinner ml-2 w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full inline-block animate-spin"></span>
+        `;
+        
+        // Démarrer immédiatement une première récupération
+        await fetchLatestCoefficient();
+        
+        // Puis configurer l'intervalle
+        autoFetchInterval = setInterval(async () => {
+            await fetchLatestCoefficient();
+        }, 5000);
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Récupération démarrée',
+            text: 'Les coefficients seront récupérés automatiquement toutes les 5 secondes',
+            timer: 2000,
+            toast: true,
+            position: 'top'
+        });
+    }
+    
+    // Fonction pour arrêter la récupération automatique
+    function stopAutoFetch() {
+        if (autoFetchInterval) {
+            clearInterval(autoFetchInterval);
+            autoFetchInterval = null;
+            isAutoFetchActive = false;
+            
+            // Réinitialiser les variables de contrôle des doublons
+            lastCoefficient = null;
+            lastFetchTime = null;
+            
+            const statusElement = document.getElementById('autoFetchStatus');
+            statusElement.innerHTML = `
+                <span class="bg-red-500 rounded-full w-2 h-2 inline-block mr-1"></span>
+                <span>Inactif</span>
+            `;
+            
+            Swal.fire({
+                icon: 'info',
+                title: 'Récupération arrêtée',
+                timer: 1500,
+                toast: true,
+                position: 'top'
+            });
+        }
+    }
+    
+    // RÉCUPÉRATION DES COEFFICIENTS via le backend
+    async function fetchLatestCoefficient() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/coefficients`);
+            if (!response.ok) throw new Error("Erreur API Backend");
+
+            const data = await response.json();
+            
+            if (data.success && data.coefficient !== null) {
+                const roundedCoefficient = parseFloat(data.coefficient.toFixed(2));
+                const now = Date.now();
+                
+                // Vérifier si le coefficient est identique au précédent et dans un intervalle < 7s
+                if (lastCoefficient === roundedCoefficient && lastFetchTime && (now - lastFetchTime) < 7000) {
+                    // Afficher un avertissement temporaire
+                    showDuplicateWarning();
+                    return;
+                }
+                
+                // Mettre à jour les variables de contrôle
+                lastCoefficient = roundedCoefficient;
+                lastFetchTime = now;
+                
+                autoCoefficients.push(roundedCoefficient);
+                updateCoefficientsDisplay();
+                
+                // Vérification des prédictions en attente
+                await verifyPendingPredictions(roundedCoefficient);
+                
+                // Si 5 coefficients, déclencher la prédiction
+                if (autoCoefficients.length >= 5) {
+                    await triggerPrediction(true);
+                    
+                    setTimeout(() => {
+                        autoCoefficients = [];
+                        updateCoefficientsDisplay();
+                    }, 1000);
+                }
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des coefficients:", error);
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur de connexion',
+                text: 'Impossible de se connecter au backend. Vérifiez l\'URL.',
+                toast: true,
+                position: 'top'
+            });
+        }
+    }
+    
+    function showDuplicateWarning() {
+        const displayElement = document.getElementById('coefficientsDisplay');
+        if (!displayElement.querySelector('.duplicate-warning')) {
+            const warningElement = document.createElement('div');
+            warningElement.className = 'duplicate-warning';
+            warningElement.innerHTML = `
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Coefficient identique détecté (ignoré)
+            `;
+            displayElement.appendChild(warningElement);
+            
+            // Supprimer l'avertissement après 3 secondes
+            setTimeout(() => {
+                if (warningElement.parentNode) {
+                    warningElement.parentNode.removeChild(warningElement);
+                }
+            }, 3000);
+        }
+    }
+    
+    // Vérification des prédictions en attente via le backend
+    async function verifyPendingPredictions(newCoefficient) {
+        const updatedPending = [];
+        
+        for (const pending of pendingVerification) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        predictionId: pending.id,
+                        currentCoefficient: newCoefficient,
+                        currentRound: pending.currentRound
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.result.verified) {
+                        // Succès - mettre à jour l'historique
+                        await loadHistoryFromBackend();
+                        await loadStatsFromBackend();
+                        
+                        // Afficher notification
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Prédiction validée!',
+                            html: `La prédiction ${pending.predictedOdds} a été validée au Round ${data.result.round}`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    } else if (data.result.status === 'failed') {
+                        // Échec après 5 rounds
+                        await loadHistoryFromBackend();
+                        await loadStatsFromBackend();
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Prédiction échouée',
+                            html: `La prédiction ${pending.predictedOdds} n'a pas été validée dans les 5 rounds`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    } else {
+                        // Toujours en attente
+                        pending.currentRound = data.result.currentRound;
+                        updatedPending.push(pending);
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors de la vérification:', error);
+            }
+        }
+        
+        pendingVerification = updatedPending;
+    }
+    
+    // Fonction pour déclencher une prédiction via le backend
+    async function triggerPrediction(autoTriggered = false) {
+        const settings = JSON.parse(localStorage.getItem('predictionSettings')) || {
+            analysisMode: 'standard',
+            excludeExtremes: false,
+            trendAnalysis: false
+        };
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/predict`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    coefficients: autoCoefficients,
+                    settings: settings
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                const predictionResult = data.prediction;
+                
+                // Ajouter à la vérification automatique si déclenché automatiquement
+                if (autoTriggered && isAutoFetchActive) {
+                    pendingVerification.push({
+                        id: predictionResult.id,
+                        predictedOdds: parseFloat(predictionResult.averageOdds),
+                        currentRound: 1
+                    });
+                }
+
+                updatePredictionDisplay(predictionResult);
+                await loadHistoryFromBackend();
+                await loadStatsFromBackend();
+                await analyzeHistoricalData();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Prédiction Générée!',
+                    html: `
+                        <div class="text-left text-sm">
+                            <p>Côte moyenne: ${predictionResult.averageOdds}</p>
+                            <p class="text-gray-600">Probabilité: ${predictionResult.probabilities[0]}%</p>
+                            <p class="text-gray-600">Mode: ${settings.analysisMode}</p>
+                        </div>
+                    `,
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur de prédiction',
+                text: error.message,
+                confirmButtonColor: '#3B82F6',
+                toast: true,
+                position: 'top'
+            });
+        }
+    }
+    
+    // Fonction pour charger l'historique depuis le backend
+    async function loadHistoryFromBackend() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/history`);
+            const data = await response.json();
+            
+            if (data.success) {
+                predictionHistory = data.history;
+                updatePredictionHistory();
+                updateStatistics(data.stats);
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement de l\'historique:', error);
+        }
+    }
+    
+    // Fonction pour charger les statistiques depuis le backend
+    async function loadStatsFromBackend() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/stats`);
+            const data = await response.json();
+            
+            if (data.success) {
+                updateStatistics(data.stats);
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des statistiques:', error);
+        }
+    }
+    
+    // Fonction pour mettre à jour l'affichage des coefficients
+    function updateCoefficientsDisplay() {
+        const displayElement = document.getElementById('coefficientsDisplay');
+        
+        if (autoCoefficients.length === 0) {
+            displayElement.innerHTML = '<p class="text-center text-gray-500 text-sm">Les coefficients apparaîtront ici</p>';
+            return;
+        }
+        
+        displayElement.innerHTML = `
+            <div class="flex flex-wrap justify-center">
+                ${autoCoefficients.map(coef => `
+                    <div class="coefficient-badge text-xs">${coef}</div>
+                `).join('')}
+            </div>
+            <div class="text-center mt-2 text-xs text-gray-600">
+                ${5 - autoCoefficients.length} coefficient(s) restant(s) avant prédiction
+            </div>
+        `;
+    }
+    
+    function updatePredictionDisplay(prediction) {
+        // Statut de vérification
+        let verificationStatus = '';
+        
+        const pendingInfo = pendingVerification.find(p => p.id === prediction.id);
+        const isPending = pendingInfo && prediction.verificationStatus === 'pending';
+        
+        if (isPending) {
+            const currentRound = pendingInfo ? pendingInfo.currentRound : 1;
+            
+            verificationStatus = `
+                <div class="validation-container">
+                    <div class="validation-status validation-pending">
+                        <i class="fas fa-sync-alt fa-spin mr-2"></i>
+                        Vérification en cours - Round ${currentRound}/5
+                    </div>
+                    <p class="text-xs text-center mt-2 text-gray-600">
+                        Le système vérifie automatiquement cette prédiction sur les 5 prochains rounds
+                    </p>
+                </div>
+            `;
+        } else if (prediction.verificationStatus === 'success') {
+            verificationStatus = `
+                <div class="validation-container">
+                    <div class="validation-status validation-success">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        ✅ Validé au Round ${prediction.verifiedRound}
+                    </div>
+                    <p class="text-xs text-center mt-2 text-green-600 font-medium">
+                        Cette prédiction a été validée avec succès!
+                    </p>
+                </div>
+            `;
+        } else if (prediction.verificationStatus === 'failed') {
+            verificationStatus = `
+                <div class="validation-container">
+                    <div class="validation-status validation-failed">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        ❌ Échoué après 5 rounds
+                    </div>
+                    <p class="text-xs text-center mt-2 text-red-600 font-medium">
+                        Cette prédiction n'a pas été validée dans les 5 rounds
+                    </p>
+                </div>
+            `;
+        }
+        
+        document.getElementById('result').innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                    <span class="text-xs text-gray-600 block mb-1">Côte Probable</span>
+                    <p class="text-2xl font-bold text-blue-600">${prediction.averageOdds}</p>
+                </div>
+                
+                <div class="text-center p-3 bg-green-50 rounded-lg">
+                    <span class="text-xs text-gray-600 block mb-1">Probabilité de Réussite</span>
+                    <p class="text-2xl font-bold text-green-600">${prediction.probabilities[0]}%</p>
+                </div>
+            </div>
+            ${verificationStatus}
+        `;
+    }
+    
+    function updatePredictionHistory() {
+        const historyContainer = document.getElementById('predictionHistory');
+        historyContainer.innerHTML = predictionHistory.map((prediction) => {
+            // Vérifier si cette prédiction est en cours de vérification
+            const isPendingVerification = pendingVerification.some(p => p.id === prediction.id);
+            const pendingInfo = pendingVerification.find(p => p.id === prediction.id);
+            
+            return `
+            <div class="history-item bg-white border border-gray-200 p-3 rounded-lg">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold text-gray-800 text-sm">${prediction.date}</p>
+                                <p class="text-xs text-gray-600">
+                                    Prédiction: <span class="font-bold text-blue-600">${prediction.averageOdds}</span> 
+                                    <span class="ml-1">(${prediction.probabilities[0]}%)</span>
+                                </p>
+                            </div>
+                            <div>
+                                ${prediction.status === 'pending' ? `
+                                    <span class="status-badge status-pending text-xs">En attente</span>
+                                ` : prediction.status === 'success' ? `
+                                    <span class="status-badge status-success text-xs">Validée</span>
+                                ` : `
+                                    <span class="status-badge status-failed text-xs">Échouée</span>
+                                `}
+                            </div>
+                        </div>
+                        
+                        <!-- Statut de vérification -->
+                        ${isPendingVerification ? `
+                            <div class="mt-2 text-xs bg-orange-50 text-orange-800 p-1.5 rounded">
+                                <i class="fas fa-sync-alt fa-spin mr-1"></i>
+                                Vérification en cours: 
+                                <span class="font-bold">Round ${pendingInfo.currentRound}/5</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${prediction.verificationStatus === 'success' ? `
+                            <div class="mt-2 text-xs bg-green-50 text-green-800 p-1.5 rounded">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Validé au Round ${prediction.verifiedRound}
+                            </div>
+                        ` : ''}
+                        
+                        ${prediction.verificationStatus === 'failed' ? `
+                            <div class="mt-2 text-xs bg-red-50 text-red-800 p-1.5 rounded">
+                                <i class="fas fa-times-circle mr-1"></i>
+                                Échoué après 5 rounds
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+    
+    function updateStatistics(stats = null) {
+        if (!stats) {
+            const total = predictionHistory.length;
+            const success = predictionHistory.filter(p => p.status === 'success').length;
+            const failed = predictionHistory.filter(p => p.status === 'failed').length;
+            const pending = predictionHistory.filter(p => p.status === 'pending').length;
+            
+            const accuracy = total > 0 
+                ? ((success / total) * 100).toFixed(1)
+                : '0';
+
+            document.getElementById('totalPredictions').textContent = total;
+            document.getElementById('predictionAccuracy').textContent = accuracy + '%';
+            document.getElementById('successCount').textContent = success;
+            document.getElementById('failedCount').textContent = failed;
+            document.getElementById('pendingCount').textContent = pending;
+        } else {
+            document.getElementById('totalPredictions').textContent = stats.totalPredictions;
+            document.getElementById('predictionAccuracy').textContent = stats.predictionAccuracy + '%';
+            document.getElementById('successCount').textContent = stats.successCount;
+            document.getElementById('failedCount').textContent = stats.failedCount;
+            document.getElementById('pendingCount').textContent = stats.pendingCount;
+        }
+    }
+    
+    function openAdvancedSettings() {
+        const currentSettings = JSON.parse(localStorage.getItem('predictionSettings')) || {
+            analysisMode: 'standard',
+            excludeExtremes: false,
+            trendAnalysis: false
+        };
+
+        Swal.fire({
+            title: 'Paramètres Avancés',
+            html: `
+                <div class="grid grid-cols-1 gap-3 text-sm">
+                    <div class="text-left">
+                        <label class="block text-gray-700 mb-1">Mode d'Analyse</label>
+                        <select id="analysisMode" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="standard" ${currentSettings.analysisMode === 'standard' ? 'selected' : ''}>
+                                Standard (Moyenne simple)
+                            </option>
+                            <option value="advanced" ${currentSettings.analysisMode === 'advanced' ? 'selected' : ''}>
+                                Avancé (Pondération adaptative)
+                            </option>
+                            <option value="pro" ${currentSettings.analysisMode === 'pro' ? 'selected' : ''}>
+                                Professionnel (Analyse complète)
+                            </option>
+                        </select>
+                    </div>
+                    <div class="text-left">
+                        <label class="block text-gray-700 mb-1">Options d'Analyse</label>
+                        <div class="space-y-1">
+                            <label class="flex items-center p-1.5 bg-gray-50 rounded-lg">
+                                <input type="checkbox" id="excludeExtremes" class="mr-2 h-4 w-4" 
+                                    ${currentSettings.excludeExtremes ? 'checked' : ''}>
+                                Exclure les valeurs extrêmes
+                            </label>
+                            <label class="flex items-center p-1.5 bg-gray-50 rounded-lg">
+                                <input type="checkbox" id="trendAnalysis" class="mr-2 h-4 w-4"
+                                    ${currentSettings.trendAnalysis ? 'checked' : ''}>
+                                Analyse tendancielle
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Sauvegarder',
+            cancelButtonText: 'Annuler',
+            confirmButtonColor: '#3B82F6',
+            cancelButtonColor: '#EF4444',
+            preConfirm: () => {
+                const settings = {
+                    analysisMode: document.getElementById('analysisMode').value,
+                    excludeExtremes: document.getElementById('excludeExtremes').checked,
+                    trendAnalysis: document.getElementById('trendAnalysis').checked
+                };
+                localStorage.setItem('predictionSettings', JSON.stringify(settings));
+                return settings;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Paramètres sauvegardés',
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        });
+    }
+    
+    async function analyzeHistoricalData() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/analyze`);
+            const data = await response.json();
+            
+            if (data.success) {
+                if (!data.analysis.hasData) {
+                    document.getElementById('intelligentAnalysis').innerHTML = `
+                        <div class="text-center text-gray-500 p-3 text-xs">
+                            <i class="fas fa-database text-2xl text-gray-400 mb-2"></i>
+                            <p>Pas encore assez de données pour l'analyse</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const analysis = data.analysis;
+                
+                document.getElementById('intelligentAnalysis').innerHTML = `
+                    <div class="space-y-3">
+                        <div class="p-2 bg-purple-50 rounded-lg">
+                            <div class="font-bold text-purple-800 mb-1 text-sm">
+                                <i class="fas fa-chart-line mr-1"></i>
+                                Meilleur Intervalle de Probabilité
+                            </div>
+                            <p class="text-purple-600 text-xs">
+                                ${analysis.percentageRanges.bestRange}% (${analysis.percentageRanges.bestCount} succès)
+                                <span class="block text-purple-500 text-xs">
+                                    Taux de réussite: ${analysis.percentageRanges.successRate}%
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="p-2 bg-blue-50 rounded-lg">
+                            <div class="font-bold text-blue-800 mb-1 text-sm">
+                                <i class="fas fa-flag-checkered mr-1"></i>
+                                Round le Plus Performant
+                            </div>
+                            <p class="text-blue-600 text-xs">
+                                Round ${analysis.roundAnalysis.bestRound}
+                                <span class="block text-blue-500 text-xs">
+                                    (${analysis.roundAnalysis.roundCount} succès sur ${analysis.roundAnalysis.totalForRound} prédictions)
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="p-2 bg-green-50 rounded-lg">
+                            <div class="font-bold text-green-800 mb-1 text-sm">
+                                <i class="fas fa-trophy mr-1"></i>
+                                Meilleures Côtes
+                            </div>
+                            <p class="text-green-600 text-xs">
+                                ${analysis.oddsAnalysis.bestRange}
+                                <span class="block text-green-500 text-xs">
+                                    (${analysis.oddsAnalysis.successCount} succès)
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="text-center text-xs text-gray-500 mt-2">
+                            Analyse basée sur ${analysis.totalSuccessful} prédictions réussies
+                        </div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Erreur lors de l\'analyse:', error);
+        }
+    }
+
+    function toggleHistoryVisibility() {
+        const historyContainer = document.getElementById('predictionHistory');
+        const toggleButton = document.getElementById('toggleHistory');
+        isHistoryVisible = !isHistoryVisible;
+        
+        if (isHistoryVisible) {
+            historyContainer.style.display = 'block';
+            toggleButton.textContent = 'Masquer';
+            toggleButton.classList.remove('bg-green-500');
+            toggleButton.classList.add('bg-blue-500');
+        } else {
+            historyContainer.style.display = 'none';
+            toggleButton.textContent = 'Afficher';
+            toggleButton.classList.remove('bg-blue-500');
+            toggleButton.classList.add('bg-green-500');
+        }
+    }
+    
+    function showGuide() {
+        Swal.fire({
+            title: '🚀 Nouvelle Version Backend',
+            html: `
+                <div class="text-left space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <h3 class="text-lg font-bold text-blue-600">🔒 Logique Protégée</h3>
+                        <p class="text-sm">
+                            La logique de prédiction est maintenant exécutée côté serveur pour plus de sécurité.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-green-600">🌐 Configuration du Backend</h3>
+                        <ul class="list-disc pl-5 text-sm">
+                            <li>L'URL du backend est configurable dans le pied de page</li>
+                            <li>Par défaut: <code>https://votre-backend.onrender.com</code></li>
+                            <li>Mettez à jour avec votre URL Render après déploiement</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-purple-600">🔄 API Endpoints</h3>
+                        <div class="text-sm space-y-1">
+                            <p><code>GET /api/coefficients</code> - Récupère les coefficients</p>
+                            <p><code>POST /api/predict</code> - Génère une prédiction</p>
+                            <p><code>POST /api/verify</code> - Vérifie une prédiction</p>
+                            <p><code>GET /api/history</code> - Récupère l'historique</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 p-3 rounded-lg">
+                        <h3 class="text-lg font-bold text-yellow-600">⚠️ Déploiement sur Render</h3>
+                        <ol class="list-decimal pl-5 text-sm space-y-1">
+                            <li>Créez un nouveau service Web sur Render</li>
+                            <li>Sélectionnez "Node.js" comme environnement</li>
+                            <li>Importez votre repository Git avec le backend</li>
+                            <li>Configurez la commande de démarrage: <code>node server.js</code></li>
+                            <li>Attribuez un nom de domaine personnalisé si souhaité</li>
+                        </ol>
+                    </div>
+                </div>
+            `,
+            width: '600px',
+            confirmButtonText: 'Compris',
+            confirmButtonColor: '#3B82F6'
+        });
+    }
+</script>
+</body>
+</html>
